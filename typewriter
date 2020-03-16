@@ -12,16 +12,12 @@ from threading import Thread
 from pygments import highlight
 from pygments.formatters import ImageFormatter
 from pygments.lexers import (get_lexer_by_name,get_lexer_for_filename,guess_lexer)
-from pprint import pformat
 
 class Typewriter:
     """Generates images and video from code with a typewriter effect (typing one character at a time). """
     def __init__(self,**args):
-        self.args = **args
-        if not args.language is None:
-            self.lexer = get_lexer_by_name(args.language)
-        else:
-            self.lexer = get_lexer_for_filename(args.textfile)
+        self.args = args
+        self.lexer = get_lexer_for_filename(args['textfile']) if self.args['language'] is None else get_lexer_by_name(self.args['language'])
 
         logger.debug(f'Assigned value to lexer object {self.lexer}')
         self.formatter = self.__get_formatter()
@@ -33,7 +29,7 @@ class Typewriter:
         self.total=0
         self.total_size=0
         try:
-            with open(args.textfile,'r') as f:
+            with open(args['textfile'],'r') as f:
                 self._content = f.read()
         except FileNotFoundError as err:
             logger.error(err)
@@ -43,12 +39,7 @@ class Typewriter:
         return ImageFormatter(line_numbers=True,style=self.args['style'],line_number_bg=None,font_size=self.args['font_size'])
 
     def __get_lexer(self,content):
-        lexer = guess_lexer(content) if 'language' not in self.args else self.args['language']
-        # if not args.language is None:
-        #     lexer = get_lexer_by_name(self.args.language)
-        # else:
-        #     lexer = guess_lexer(content)
-
+        lexer = guess_lexer(content) if self.args['language'] is None else get_lexer_by_name(self.args['language'])
         return lexer
 
     def __update_progress(self):
@@ -226,7 +217,7 @@ logger.debug('Set log level for console.')
 tw = Typewriter(**args)
 steps = 0
 content = ''
-with open(args.textfile,'r') as f:
+with open(args['textfile'],'r') as f:
     content = f.read()
     steps = len(content)
 
