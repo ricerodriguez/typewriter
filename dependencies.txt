@@ -1,0 +1,4 @@
+opencv-python==4.2.0.32
+numpy==1.18.1
+Pillow==7.0.0
+Pygments==2.5.2
