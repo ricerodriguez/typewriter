@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-
+"""
+Generates images and video from code with a typewriter effect (typing one character at a time)
+"""
 __author__ = 'Victoria (Rice) Rodriguez'
+__package__ = "typewriter"
 
 import os, sys
 import cv2
@@ -14,8 +17,10 @@ from pygments.formatters import ImageFormatter
 from pygments.lexers import (get_lexer_by_name,get_lexer_for_filename,guess_lexer)
 
 class Typewriter:
-    """Generates images and video from code with a typewriter effect (typing one character at a time). """
     def __init__(self,**args):
+        """
+        Generates images and video from code with a typewriter effect (typing one character at a time). 
+        """
         self.args = args
         self.lexer = get_lexer_for_filename(args['textfile']) if self.args['language'] is None else get_lexer_by_name(self.args['language'])
 
@@ -177,50 +182,51 @@ class Typewriter:
         self.progress+=1
         print()
 
-parser = argparse.ArgumentParser(description = 'Creates a video of typing text given a text file')
-parser.add_argument('-v','--verbose',help='outputs logging to console',nargs='?',default='INFO',metavar='LOG LEVEL',choices=['DEBUG','debug','INFO','info','WARNING','warning','ERROR','error','CRITICAL','critical'])
-parser.add_argument('-l','--language',help='manually choose language of textfile, leave blank to auto-detect')
-parser.add_argument('-s','--style',help='choose pygments style for syntax highlighting, defaults to monokai',default='monokai')
-parser.add_argument('--font_size',help='size of font, defaults to 14',default=14)
-parser.add_argument('--fps',help='fps of output video, defaults to 10',default=10)
-parser.add_argument('-o','--out',help='name of output file, defaults to movie.avi',default='movie.avi')
-parser.add_argument('textfile',help='text file of the text that should be typed in the video')
-args = vars(parser.parse_args())
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Creates a video of typing text given a text file')
+    parser.add_argument('-v','--verbose',help='outputs logging to console',nargs='?',default='INFO',metavar='LOG LEVEL',choices=['DEBUG','debug','INFO','info','WARNING','warning','ERROR','error','CRITICAL','critical'])
+    parser.add_argument('-l','--language',help='manually choose language of textfile, leave blank to auto-detect')
+    parser.add_argument('-s','--style',help='choose pygments style for syntax highlighting, defaults to monokai',default='monokai')
+    parser.add_argument('--font_size',help='size of font, defaults to 14',default=14)
+    parser.add_argument('--fps',help='fps of output video, defaults to 10',default=10)
+    parser.add_argument('-o','--out',help='name of output file, defaults to movie.avi',default='movie.avi')
+    parser.add_argument('textfile',help='text file of the text that should be typed in the video')
+    args = vars(parser.parse_args())
 
-logger = logging.getLogger('Typewriter')
-log_cmd = logging.StreamHandler()
-logger.addHandler(log_cmd)
+    logger = logging.getLogger('Typewriter')
+    log_cmd = logging.StreamHandler()
+    logger.addHandler(log_cmd)
 
-try:
-    if args['verbose'].lower() == 'debug':
-        logger.setLevel(logging.DEBUG)
-    elif args['verbose'].lower() == 'info':
-        logger.setLevel(logging.INFO)
-    elif args['verbose'].lower() == 'warning':
+    try:
+        if args['verbose'].lower() == 'debug':
+            logger.setLevel(logging.DEBUG)
+        elif args['verbose'].lower() == 'info':
+            logger.setLevel(logging.INFO)
+        elif args['verbose'].lower() == 'warning':
+            logger.setLevel(logging.WARNING)
+        elif args['verbose'].lower() == 'error':
+            logger.setLevel(logging.ERROR)
+        elif args['verbose'].lower() == 'critical':
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger.setLevel(logging.WARNING)
+    except KeyError:
         logger.setLevel(logging.WARNING)
-    elif args['verbose'].lower() == 'error':
-        logger.setLevel(logging.ERROR)
-    elif args['verbose'].lower() == 'critical':
-        logger.setLevel(logging.CRITICAL)
-    else:
-        logger.setLevel(logging.WARNING)
-except KeyError:
-    logger.setLevel(logging.WARNING)
-    
-# set a format which is simpler for console use
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-# tell the handler to use this format
-log_cmd.setFormatter(formatter)
-logger.debug('Set log level for console.')
+
+    # set a format which is simpler for console use
+    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+    # tell the handler to use this format
+    log_cmd.setFormatter(formatter)
+    logger.debug('Set log level for console.')
 
 
-tw = Typewriter(**args)
-steps = 0
-content = ''
-with open(args['textfile'],'r') as f:
-    content = f.read()
-    steps = len(content)
+    tw = Typewriter(**args)
+    steps = 0
+    content = ''
+    with open(args['textfile'],'r') as f:
+        content = f.read()
+        steps = len(content)
 
-tw.generate_images(content)
-tw.generate_movie(**args)
+    tw.generate_images(content)
+    tw.generate_movie(**args)
 
